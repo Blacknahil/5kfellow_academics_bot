@@ -1,5 +1,9 @@
 .env
 .git
-venv
+.venv
 __pycache__/
 *.pyc
+./token.json
+.DS_Store
+credentials.json
+token.json
