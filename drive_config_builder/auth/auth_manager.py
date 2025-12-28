@@ -42,5 +42,3 @@ def get_authenticated_drive_service():
     
     service = build("drive", "v3", credentials= creds )
     return service
-
-get_authenticated_drive_service()
