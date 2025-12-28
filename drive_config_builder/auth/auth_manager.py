@@ -41,4 +41,5 @@ def get_authenticated_drive_service():
             token.write(creds.to_json())
     
     service = build("drive", "v3", credentials= creds )
+    print("Google Drive authentication successful.")
     return service
