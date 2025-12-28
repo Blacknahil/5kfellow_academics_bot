@@ -1,6 +1,3 @@
-# │       - handles Google Drive authentication
-# │       - loads credentials.json
-# │       - returns authenticated Drive service object
 import os
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
