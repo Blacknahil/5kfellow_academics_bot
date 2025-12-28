@@ -1,7 +1,4 @@
-# │   │   - high-level functions:
-# │   │       get_folder_children(folder_id)
-# │   │       get_file_metadata(file_id)
-# │   │   - abstracts raw Google API requests
+
 from googleapiclient.errors import HttpError
 
 def list_children(service, folder_id):

@@ -1,7 +1,3 @@
-# │       - recursive DFS that:
-# │           • identifies folder type (department, year, semester, course, category)
-# │           • calls drive_reader to list children
-# │           • builds nested Python dict representing structure
 from drive.drive_reader import list_children, is_folder, get_file_url
 
 def build_tree(drive_service, root_folder_id):

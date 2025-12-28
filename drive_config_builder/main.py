@@ -1,8 +1,3 @@
-# │   - entry point
-# │   - loads authenticated google drive services 
-# │   - calls recursive builder
-# │   - saves final JSON
-
 from auth.auth_manager import get_authenticated_drive_service
 from builder.config_builder import write_config
 from drive.walker import build_tree

@@ -8,6 +8,8 @@ from telegram.ext import (
     ContextTypes,
     filters
 )
+from drive_config_builder.main import generate_drive_config
+from pathlib import Path
 
 from constants import (
     DEPARTMENTS,
@@ -21,6 +23,9 @@ from constants import (
 
 load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
+
+READ_DRIVE_STATUS = os.getenv("READ_DRIVE_STATUS") == "True"
+DRIVE_CONFIG_PATH = "output/drive_config.json"
 
 # ---------------- STATE ---------------- #
 
@@ -292,4 +297,27 @@ def main():
 
 
 if __name__ == "__main__":
+    # check if the drive config file exists and it aint empty 
+    root_folder_id = os.getenv("GOOGLE_DRIVE_ROOT_FOLDER_ID")
+    path = Path(DRIVE_CONFIG_PATH)
+    NotExistsOrEmpty = not path.exists() or path.stat().st_size == 0
+    
+    if READ_DRIVE_STATUS:
+        print("📂 Drive reading is ENABLED.")
+        generate_drive_config(
+            root_folder_id=root_folder_id,
+            output_path=DRIVE_CONFIG_PATH
+            )
+        
+    elif not READ_DRIVE_STATUS and NotExistsOrEmpty:
+        print("⚠️ Drive reading is DISABLED but the drive config file does not exist or is empty.")
+        print("Generating drive config file now...")
+        generate_drive_config(
+            root_folder_id=root_folder_id,
+            output_path=DRIVE_CONFIG_PATH
+            )
+    else:
+        print("📂 Drive reading is DISABLED.")
+        print("Using existing drive config file.")
+        
     main()
