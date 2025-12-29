@@ -13,13 +13,21 @@ def list_children(service, folder_id):
             - name
             - mimeType
     '''
+    query = f"'{folder_id}' in parents and trashed = false"
+    items = []
+    page_token = None
     try:
-        query = f"'{folder_id}' in parents and trashed = false"
-        results = service.files().list(
-            q = query,
-            fields = "files(id, name, mimeType)"
-        ).execute()
-        items = results.get('files', [])
+        while True:
+            response  = service.files().list(
+                q = query,
+                fields = "nextPageToken, files(id, name, mimeType)",
+                pageToken = page_token
+            ).execute()
+            items.extend(response.get('files', []))
+            page_token = response.get('nextPageToken', None)
+            if not page_token:
+                break
+            
         return items
     
     except HttpError as error:
