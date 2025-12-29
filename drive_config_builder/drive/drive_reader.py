@@ -32,6 +32,7 @@ def list_children(service, folder_id):
     
     except HttpError as error:
         print(f"An error occurred: {error}")
+        print(f"Failed while listing children of folder ID: {folder_id}")
         return []
 
 

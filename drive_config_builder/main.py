@@ -1,6 +1,6 @@
-from auth.auth_manager import get_authenticated_drive_service
-from builder.config_builder import write_config
-from drive.walker import build_tree
+from drive_config_builder.auth.auth_manager import get_authenticated_drive_service
+from drive_config_builder.builder.config_builder import write_config
+from drive_config_builder.drive.walker import build_tree
 from dotenv import load_dotenv
 import os
 
@@ -14,7 +14,7 @@ def generate_drive_config(root_folder_id, output_path="output/drive_config.json"
     This is the entry point you will call from bot.py.
     
     :param root_folder_id: ID of the root folder to start building the tree from
-    :param output_file: Path to the output JSON file
+    :param output_path: Path to the output JSON file
     '''
     if root_folder_id is None or not str(root_folder_id).strip():
         raise ValueError("Root folder ID must be provided and cannot be empty.")

@@ -2,7 +2,7 @@ from drive_config_builder.drive.drive_reader import list_children, is_folder, ge
 
 def build_tree(drive_service, root_folder_id):
     '''
-    Recursively builds a nested dictionary structure that mirrros the Google Drive folder hierarchy.
+    Recursively builds a nested dictionary structure that mirrors the Google Drive folder hierarchy.
     
     :param drive_service: Authenticated Drive service object
     :param root_folder_id: ID of the root folder to start building the tree from

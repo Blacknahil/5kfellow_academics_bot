@@ -300,7 +300,7 @@ if __name__ == "__main__":
     # check if the drive config file exists and it aint empty 
     root_folder_id = os.getenv("GOOGLE_DRIVE_ROOT_FOLDER_ID")
     path = Path(DRIVE_CONFIG_PATH)
-    NotExistsOrEmpty = not path.exists() or path.stat().st_size == 0
+    not_exists_or_empty = not path.exists() or path.stat().st_size == 0
     
     if READ_DRIVE_STATUS:
         print("📂 Drive reading is ENABLED.")
@@ -309,7 +309,7 @@ if __name__ == "__main__":
             output_path=DRIVE_CONFIG_PATH
             )
         
-    elif not READ_DRIVE_STATUS and NotExistsOrEmpty:
+    elif not READ_DRIVE_STATUS and not_exists_or_empty:
         print("⚠️ Drive reading is DISABLED but the drive config file does not exist or is empty.")
         print("Generating drive config file now...")
         generate_drive_config(
