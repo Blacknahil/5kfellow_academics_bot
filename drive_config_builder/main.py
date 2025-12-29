@@ -16,6 +16,8 @@ def generate_drive_config(root_folder_id, output_path="output/drive_config.json"
     :param root_folder_id: ID of the root folder to start building the tree from
     :param output_file: Path to the output JSON file
     '''
+    if root_folder_id is None or not str(root_folder_id).strip():
+        raise ValueError("Root folder ID must be provided and cannot be empty.")
     drive_service = get_authenticated_drive_service()
     drive_tree = build_tree(drive_service, root_folder_id)
     write_config(drive_tree, output_path)
