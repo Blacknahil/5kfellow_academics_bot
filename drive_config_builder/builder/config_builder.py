@@ -10,6 +10,7 @@ def write_config(data, output_path="output/config.json"):
         output_path: Path to the output JSON file.
     """
     output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     with output_path.open("w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)

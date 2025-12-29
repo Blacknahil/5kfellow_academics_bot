@@ -1,4 +1,4 @@
-from drive.drive_reader import list_children, is_folder, get_file_url
+from drive_config_builder.drive.drive_reader import list_children, is_folder, get_file_url
 
 def build_tree(drive_service, root_folder_id):
     '''
