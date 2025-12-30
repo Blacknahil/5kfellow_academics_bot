@@ -8,7 +8,7 @@ from telegram.ext import (
     ContextTypes,
     filters
 )
-from drive_config_builder.main import generate_drive_config
+from file_manager.drive_config_builder.main import generate_drive_config
 from pathlib import Path
 
 from constants import (
@@ -25,7 +25,7 @@ load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 READ_DRIVE_STATUS = os.getenv("READ_DRIVE_STATUS") == "True"
-DRIVE_CONFIG_PATH = "output/drive_config.json"
+DRIVE_CONFIG_PATH = "config/drive_config.json"
 
 # ---------------- STATE ---------------- #
 
