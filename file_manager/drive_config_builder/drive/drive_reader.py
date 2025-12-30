@@ -1,5 +1,9 @@
 
 from googleapiclient.errors import HttpError
+import os
+import io
+from googleapiclient.http import MediaIoBaseDownload
+import asyncio
 
 def list_children(service, folder_id):
     '''
@@ -47,3 +51,43 @@ def is_folder(item):
     Checks if a given item is a folder based on its mime type.
     '''
     return item.get("mimeType") == "application/vnd.google-apps.folder"
+
+def _download_file_sync(service, file_id, destination_path = "temp_downloads"):
+    '''
+    Downloads a file from Google Drive to a local destination.An actual blocking download logic.
+    
+    :param service: Authenticated Drive service object
+    :param file_id: ID of the file to download
+    :param destination_path: Local path to save the downloaded file
+    '''
+    
+    try:
+        os.makedirs(destination_path, exist_ok = True)
+        
+        # get file metadata 
+        metadata = service.files().get(fileId = file_id, fields= "name").execute()
+        file_name = metadata.get("name", f"{file_id}.bin")
+        file_path = os.path.join(destination_path, file_name)
+        # download the file 
+        request = service.files().get_media(fileId = file_id)
+        file_handler = io.FileIO(file_path, 'wb')
+        downloader = MediaIoBaseDownload(file_handler, request)
+        while True:
+            status, done = downloader.next_chunk()
+            if done:
+                break
+        print(f"Downloaded file ID: {file_id} to {file_path}")
+        return file_path
+    except Exception as e:
+        print(f"Drive sync download failed for file ID: {file_id} with error: {e}")
+        return None
+        
+
+async def download_file(service, file_id, destination_path):
+    '''
+    Async wrapper so downloads don't block the event loop.
+    '''
+    return await asyncio.to_thread(
+        _download_file_sync, service, file_id, destination_path
+    )
+
