@@ -25,8 +25,13 @@ def get_authenticated_drive_service():
     
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
+            try: 
+                creds.refresh(Request())
+            except Exception as e:
+                print("Error refreshing token:", e)
+                creds = None
+                
+        if not creds:
             try:
                 
                 flow = InstalledAppFlow.from_client_secrets_file(
