@@ -10,14 +10,22 @@ from constants import (
 from utils import make_keyboard, get_files
 
 
-async def handle_start_step(update, state):
+async def handle_start_step(update, context, state, text):
     state["step"] = "DEPARTMENT"
     await update.message.reply_text(
         "Choose your department:",
-        reply_markup=make_keyboard(DEPARTMENTS, 1)
+        reply_markup=make_keyboard(DEPARTMENTS)
     )
 
-async def handle_department_step(update, state, text):
+async def handle_department_step(update, context, state, text):
+    # RENDER MODE (Back navigation)
+    if text is None:
+        await update.message.reply_text(
+            "Choose your department:",
+            reply_markup=make_keyboard(DEPARTMENTS, 1)
+        )
+        return
+    # INPUT MODE (Moving forward)
     if text not in DEPARTMENTS:
         return
 
@@ -30,7 +38,17 @@ async def handle_department_step(update, state, text):
     )
 
 
-async def handle_year_step(update, state, text):
+async def handle_year_step(update, context, state, text):
+    
+    # RENDER MODE (Back navigation)
+    if text is None:
+        await update.message.reply_text(
+            "Select your year:",
+            reply_markup=make_keyboard(YEARS)
+        )
+        return
+    
+    #INPUT MODE(Moving forward)
     if text not in YEARS:
         return
 
@@ -42,14 +60,22 @@ async def handle_year_step(update, state, text):
         reply_markup=make_keyboard(SEMESTERS)
     )
 
-async def handle_semester_step(update, state, text):
+async def handle_semester_step(update, context, state, text):
+    # RENDER MODE (Back navigation)
+    if text is None:
+        await update.message.reply_text(
+            "Select semester:",
+            reply_markup=make_keyboard(SEMESTERS)
+        )
+        return
+    
+    # INPUT MODE (Moving forward)
     if text not in SEMESTERS:
         return
-
     state["semester"] = text
 
     # Stream conditions
-    if state["department"] == "Software Engineering" and state["year"] in ["4th Year", "5th Year"]:
+    if state["department"] == "Software Engineering" and state["year"] in ["Fourth Year", "Fifth Year"]:
         state["step"] = "STREAM"
         await update.message.reply_text(
             "Select your stream:",
@@ -60,8 +86,8 @@ async def handle_semester_step(update, state, text):
     if (
         state["department"] == "Electrical Engineering"
         and (
-            state["year"] == "5th Year"
-            or (state["year"] == "4th Year" and text == "2nd Semester")
+            state["year"] == "Fifth Year"
+            or (state["year"] == "Fourth Year" and text == "Second Semester")
         )
     ):
         state["step"] = "STREAM"
@@ -74,7 +100,18 @@ async def handle_semester_step(update, state, text):
     # No stream → subject
     await enter_subject_step(update, state)
 
-async def handle_stream_step(update, state, text):
+async def handle_stream_step(update, context, state, text):
+    
+    # RENDER MODE (Back navigation)
+    if text is None:
+        streams = SOFTWARE_STREAMS if state["department"] == "Software Engineering" else ELECTRICAL_STREAMS
+        await update.message.reply_text(
+            "Select your stream:",
+            reply_markup=make_keyboard(streams)
+        )
+        return
+    
+    # INPUT MODE (Moving forward)
     streams = SOFTWARE_STREAMS if state["department"] == "Software Engineering" else ELECTRICAL_STREAMS
 
     if text not in streams:
@@ -99,7 +136,7 @@ async def enter_subject_step(update, state):
         reply_markup=make_keyboard(subjects, 1)
     )
 
-async def handle_subject_step(update, state, text):
+async def handle_subject_step(update, context, state, text):
     subjects = (
         SUBJECTS
         .get(state["department"], {})
