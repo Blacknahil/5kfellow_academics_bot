@@ -18,7 +18,7 @@ def build_tree(drive_service, root_folder_id):
             if is_folder(item):
                 node[item_name] = walk(item_id)
             else:
-                node[item_name] = get_file_url(item_id)
+                node[item_name] = item_id
         
         return node
         
