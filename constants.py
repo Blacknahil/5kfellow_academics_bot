@@ -3,12 +3,12 @@
 # ---------------- DEPARTMENTS ---------------- #
 
 DEPARTMENTS = [
-    "Software Engineering",
-    "Electrical Engineering",
-    "Mechanical Engineering",
-    "Civil Engineering",
-    "Chemical Engineering",
-    "Biomedical Engineering"
+    "Software",
+    "Electrical",
+    "Mechanical",
+    "Civil",
+    "Chemical",
+    "Biomedical"
 ]
 
 # ---------------- STREAMS ---------------- #
@@ -18,8 +18,8 @@ ELECTRICAL_STREAMS = ["Power", "Computer", "Communication", "Control"]
 
 # ---------------- YEARS & SEMESTERS ---------------- #
 
-YEARS = ["2nd Year", "3rd Year", "4th Year", "5th Year"]
-SEMESTERS = ["1st Semester", "2nd Semester"]
+YEARS = ["Second Year", "Third Year", "Fourth Year", "Fifth Year"]
+SEMESTERS = ["First Semester", "Second Semester"]
 
 # ---------------- MATERIAL TYPES ---------------- #
 
@@ -34,7 +34,7 @@ SUBJECTS = {
     # SOFTWARE ENGINEERING
     # ==========================================================
 
-    "Software Engineering": {
+    "Software": {
         "2nd Year": {
             "1st Semester": [
                 "Applied Mathematics II",
@@ -101,7 +101,7 @@ SUBJECTS = {
     # ELECTRICAL ENGINEERING
     # ==========================================================
 
-    "Electrical Engineering": {
+    "Electrical": {
         "2nd Year": {
             "1st Semester": [
                 "Circuit Theory I",
@@ -159,7 +159,7 @@ SUBJECTS = {
     # MECHANICAL ENGINEERING
     # ==========================================================
 
-    "Mechanical Engineering": {
+    "Mechanical": {
         "2nd Year": {
             "1st Semester": [
                 "Engineering Mechanics",
@@ -213,7 +213,7 @@ SUBJECTS = {
     # CIVIL ENGINEERING
     # ==========================================================
 
-    "Civil Engineering": {
+    "Civil": {
         "2nd Year": {
             "1st Semester": [
                 "Engineering Surveying",
@@ -267,7 +267,7 @@ SUBJECTS = {
     # CHEMICAL ENGINEERING
     # ==========================================================
 
-    "Chemical Engineering": {
+    "Chemical": {
         "2nd Year": {
             "1st Semester": [
                 "Material and Energy Balances",
@@ -316,7 +316,7 @@ SUBJECTS = {
     # BIOMEDICAL ENGINEERING
     # ==========================================================
 
-    "Biomedical Engineering": {
+    "Biomedical": {
         "2nd Year": {
             "1st Semester": [
                 "Human Anatomy",
