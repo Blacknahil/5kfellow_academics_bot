@@ -75,7 +75,7 @@ async def handle_semester_step(update, context, state, text):
     state["semester"] = text
 
     # Stream conditions
-    if state["department"] == "Software Engineering" and state["year"] in ["Fourth Year", "Fifth Year"]:
+    if state["department"] == "Software" and state["year"] in ["Fourth Year", "Fifth Year"]:
         state["step"] = "STREAM"
         await update.message.reply_text(
             "Select your stream:",
@@ -84,7 +84,7 @@ async def handle_semester_step(update, context, state, text):
         return
 
     if (
-        state["department"] == "Electrical Engineering"
+        state["department"] == "Electrical"
         and (
             state["year"] == "Fifth Year"
             or (state["year"] == "Fourth Year" and text == "Second Semester")
@@ -98,13 +98,13 @@ async def handle_semester_step(update, context, state, text):
         return
 
     # No stream → subject
-    await enter_subject_step(update, state)
+    await enter_subject_step(update, context, state)
 
 async def handle_stream_step(update, context, state, text):
     
     # RENDER MODE (Back navigation)
     if text is None:
-        streams = SOFTWARE_STREAMS if state["department"] == "Software Engineering" else ELECTRICAL_STREAMS
+        streams = SOFTWARE_STREAMS if state["department"] == "Software" else ELECTRICAL_STREAMS
         await update.message.reply_text(
             "Select your stream:",
             reply_markup=make_keyboard(streams)
@@ -112,38 +112,52 @@ async def handle_stream_step(update, context, state, text):
         return
     
     # INPUT MODE (Moving forward)
-    streams = SOFTWARE_STREAMS if state["department"] == "Software Engineering" else ELECTRICAL_STREAMS
+    streams = SOFTWARE_STREAMS if state["department"] == "Software" else ELECTRICAL_STREAMS
 
     if text not in streams:
         return
 
     state["stream"] = text
-    await enter_subject_step(update, state)
+    await enter_subject_step(update, context,state)
 
 
-async def enter_subject_step(update, state):
+async def enter_subject_step(update, context, state):
+    
+    config_map = context.bot_data["config_map"]
+    try:
+        department = state["department"].lower().replace(" ", "_") if state["department"] else ""
+        year = state["year"].lower().replace(" ", "_") if state["year"] else ""
+        stream = state.get("stream", "").lower().replace(" ", "_") if state.get("stream") else ""
+        semester = state["semester"].lower().replace(" ", "_") if state["semester"] else ""
+        
+        print("querying subjects for:", department, year, semester, stream)
+        node = (
+            config_map
+            .get(department, {})
+            .get(year, {})
+            .get(semester, {})
+        )
+        if stream:
+            node = node.get(stream, {})
+        subjects = list(node.keys())
+        
+    except KeyError:
+        await update.message.reply_text("No Courses found.")
+        return 
+    
+    if not subjects:
+        await update.message.reply_text("No Courses found.")
+        return
     state["step"] = "SUBJECT"
-
-    subjects = (
-        SUBJECTS
-        .get(state["department"], {})
-        .get(state["year"], {})
-        .get(state["semester"], ["Demo Subject"])
-    )
-
+    state["subjects"] = subjects
+    
     await update.message.reply_text(
-        "Choose subject:",
-        reply_markup=make_keyboard(subjects, 1)
+        "Please choose your course:",
+        reply_markup=make_keyboard(subjects)
     )
 
 async def handle_subject_step(update, context, state, text):
-    subjects = (
-        SUBJECTS
-        .get(state["department"], {})
-        .get(state["year"], {})
-        .get(state["semester"], ["Demo Subject"])
-    )
-
+    subjects = state["subjects"]
     if text not in subjects:
         return
 
@@ -181,7 +195,7 @@ async def handle_material_step(update, context, state, text):
 
     msg = f"📁 Available {text}:\n\n"
     for i, f in enumerate(files, 1):
-        msg += f"{i}. {f['name']}\n"
+        msg += f"{i}. {f.name}\n"
 
     msg += "\nSend the number of the file you want."
     await update.message.reply_text(msg)
@@ -198,11 +212,14 @@ async def handle_file_selection_step(update, context, state, text):
         await update.message.reply_text("Invalid number.")
         return
 
-    drive_id = files[idx]["drive_id"]
+    drive_id = files[idx].drive_id
     file_manager = context.bot_data["file_manager"]
 
     await update.message.reply_text("📥 Fetching file...")
-    await file_manager.send_file(update, context, drive_id)
-    
-    
+    chat_id = update.effective_chat.id
+    file_sent = await file_manager.get_file(chat_id, drive_id)
+    if file_sent.status:
+        print("File sent successfully.")
+    else:
+        await update.message.reply_text("Failed to send file.")
     
