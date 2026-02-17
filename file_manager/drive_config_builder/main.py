@@ -1,6 +1,6 @@
-from drive_config_builder.auth.auth_manager import get_authenticated_drive_service
-from drive_config_builder.builder.config_builder import write_config
-from drive_config_builder.drive.walker import build_tree
+from .auth.auth_manager import get_authenticated_drive_service
+from .builder.config_builder import write_config
+from .drive.walker import build_tree
 from dotenv import load_dotenv
 import os
 

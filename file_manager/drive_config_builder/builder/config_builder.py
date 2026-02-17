@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-def write_config(data, output_path="output/config.json"):
+def write_config(data, output_path="config/drive_config.json"):
     """
     Writes the nested config dictionary to a JSON file.
     
