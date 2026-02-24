@@ -88,7 +88,6 @@ def handle_back(state):
     new_step = prev(state) if callable(prev) else prev
     state["step"] = new_step
 
-    print("final state >>> ", state)
     # 🔥 Clear invalid future state
     for key in STATE_CLEANUP.get(new_step, []):
         state[key] = None
@@ -389,8 +388,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         handler = STEP_HANDLERS.get(new_step)
         print(f"Handler for new step: {handler}")
         if handler:
+            await handler(update, context, state, "back")
             print("state: ", state)
-            await handler(update, context, state, None)
             print("Back action handled")
         return
 
