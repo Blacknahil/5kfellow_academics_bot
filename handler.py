@@ -152,7 +152,7 @@ async def enter_subject_step(update, context, state):
     state["subjects"] = subjects
     
     await update.message.reply_text(
-        "Please choose your course:",
+        "Select your Subject:",
         reply_markup=make_keyboard(subjects)
     )
 
