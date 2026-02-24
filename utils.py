@@ -19,7 +19,7 @@ def get_files(
     stream:str,
     subject: str, 
     material_type: str,
-    config_map) -> list[DriveFile]:
+    config_map) -> dict[str,DriveFile]:
     
     normalized_department = department.lower().replace(" ", "_").strip()
     normalized_year = year.lower().replace(" ", "_").strip()
@@ -41,9 +41,9 @@ def get_files(
         node = node[normalized_stream]
 
     node = node[normalized_subject][normalized_material_type]
-    files = []
+    files = {}
     for key, value in node.items():
-        files.append(DriveFile(name=key, drive_id=value))
+        files[key]= (DriveFile(name=key, drive_id=value))
     return files
 
 
