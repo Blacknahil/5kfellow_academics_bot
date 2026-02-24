@@ -158,8 +158,6 @@ async def enter_subject_step(update, context, state):
 
 async def handle_subject_step(update, context, state, text):
     subjects = state["subjects"]
-    # if text not in subjects:
-    #     return
     
     if text is None:
         await update.message.reply_text(
@@ -168,6 +166,9 @@ async def handle_subject_step(update, context, state, text):
         )
         return
 
+    if text not in subjects:
+        return
+    
     state["subject"] = text
     state["step"] = "MATERIAL"
 
@@ -177,15 +178,17 @@ async def handle_subject_step(update, context, state, text):
     )
 
 async def handle_material_step(update, context, state, text):
-    # if text not in MATERIAL_TYPES:
-    #     return
 
-    if text not in MATERIAL_TYPES:
+    if text is None:
         await update.message.reply_text(
             "Choose material type:",
             reply_markup=make_keyboard(MATERIAL_TYPES)
     )
         return
+    
+    if text not in MATERIAL_TYPES:
+        return
+
 
     config_map = context.bot_data["config_map"]
 
