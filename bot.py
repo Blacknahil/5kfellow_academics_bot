@@ -88,6 +88,7 @@ def handle_back(state):
     new_step = prev(state) if callable(prev) else prev
     state["step"] = new_step
 
+    print("final state >>> ", state)
     # 🔥 Clear invalid future state
     for key in STATE_CLEANUP.get(new_step, []):
         state[key] = None

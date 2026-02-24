@@ -22,7 +22,7 @@ async def handle_department_step(update, context, state, text):
     if text is None:
         await update.message.reply_text(
             "Choose your department:",
-            reply_markup=make_keyboard(DEPARTMENTS, 1)
+            reply_markup=make_keyboard(DEPARTMENTS)
         )
         return
     # INPUT MODE (Moving forward)
@@ -152,15 +152,23 @@ async def enter_subject_step(update, context, state):
     state["subjects"] = subjects
     
     await update.message.reply_text(
-        "Please choose your course:",
+        "Select your Subject:",
         reply_markup=make_keyboard(subjects)
     )
 
 async def handle_subject_step(update, context, state, text):
     subjects = state["subjects"]
-    if text not in subjects:
+    
+    if text is None:
+        await update.message.reply_text(
+            "Select your Subject:",
+            reply_markup=make_keyboard(subjects)
+        )
         return
 
+    if text not in subjects:
+        return
+    
     state["subject"] = text
     state["step"] = "MATERIAL"
 
@@ -170,8 +178,17 @@ async def handle_subject_step(update, context, state, text):
     )
 
 async def handle_material_step(update, context, state, text):
+
+    if text is None:
+        await update.message.reply_text(
+            "Choose material type:",
+            reply_markup=make_keyboard(MATERIAL_TYPES)
+    )
+        return
+    
     if text not in MATERIAL_TYPES:
         return
+
 
     config_map = context.bot_data["config_map"]
 
@@ -193,12 +210,23 @@ async def handle_material_step(update, context, state, text):
     state["material_type"] = text
     state["files"] = files
 
-    msg = f"📁 Available {text}:\n\n"
-    for i, f in enumerate(files, 1):
-        msg += f"{i}. {f.name}\n"
+    msg = ""
 
-    msg += "\nSend the number of the file you want."
-    await update.message.reply_text(msg)
+    if len(files) == 0:
+        msg = f"No {text} found"
+        
+    else:
+        msg = f"📁 Available {text}:\n\n"
+
+        for i, f in enumerate(files, 1):
+            msg += f"{i}. {f.name}\n"
+
+        msg += "\nSend the number of the file you want."
+    # await update.message.reply_text()
+    await update.message.reply_text(
+        msg,
+        reply_markup=make_keyboard(["⬅️ Back"],back=False)
+    )
 
 async def handle_file_selection_step(update, context, state, text):
     if not text.isdigit():
