@@ -156,7 +156,7 @@ async def enter_subject_step(update, context, state):
     state["subjects"] = subjects
     
     await update.message.reply_text(
-        "Select your Subject:",
+        "Select your Course:",
         reply_markup=make_keyboard(subjects)
     )
 
@@ -165,7 +165,7 @@ async def handle_subject_step(update, context, state, text):
     if text == "back":
         subjects = state["subjects"]
         await update.message.reply_text(
-            "Please choose your course: ",
+            "Please choose your Course:",
             reply_markup = make_keyboard(subjects)
         )
         return 
@@ -174,14 +174,14 @@ async def handle_subject_step(update, context, state, text):
     
     if text is None:
         await update.message.reply_text(
-            "Select your Subject:",
+            "Select your Course:",
             reply_markup=make_keyboard(subjects)
         )
         return
 
     if text not in subjects:
         await update.message.reply_text(
-            "Please choose a valid Course: ")
+            "Please choose a valid course: ")
         return
     
     state["subject"] = text
