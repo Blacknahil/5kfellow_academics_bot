@@ -1,49 +1,37 @@
+import base64
+import json
 import os
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
+from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
 
 SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
-SAVED_TOKEN_PATH = "token.json"
-GOOGLE_CREDENTIALS_PATH = "credentials.json"
 
 def get_authenticated_drive_service():
     """
-    Authenticates with Google Drive and returns a service client.
-    Handles token saving and refreshing automatically.
-    
-    Requires:
-        - credentials.json  (OAuth client ID from Google Cloud)
-    Produces:
-        - token.json        (saved automatically after first login)
+    Authenticates with Google Drive using a Google Service Account
+    and returns an authorized Drive API service client.
+
+    Authentication Flow:
+        - Reads the Base64-encoded service account JSON from the
+          GOOGLE_SERVICE_ACCOUNT_B64 environment variable.
+        - Decodes and loads the credentials into memory.
+        - Builds an authenticated Drive v3 service instance.
+
+    Requirements:
+        - GOOGLE_SERVICE_ACCOUNT_B64 must be set in the environment.
+        - The service account must have access to the target Drive folder
+          (shared explicitly with the service account email).
     """
-    creds = None
-    if os.path.exists(SAVED_TOKEN_PATH):
-        creds = Credentials.from_authorized_user_file(SAVED_TOKEN_PATH, SCOPES)
+    b64_credentials = os.environ["GOOGLE_SERVICE_ACCOUNT_B64"]
+    decoded_json = base64.b64decode(b64_credentials).decode("utf-8")
+    credentials_info = json.loads(decoded_json)
+
+    creds = service_account.Credentials.from_service_account_info(
+        credentials_info,
+        scopes=SCOPES,
+    )
     
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            try: 
-                creds.refresh(Request())
-            except Exception as e:
-                print("Error refreshing token:", e)
-                creds = None
-                
-        if not creds:
-            try:
-                
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    GOOGLE_CREDENTIALS_PATH, SCOPES)
-                creds = flow.run_local_server(port=0)
-            except Exception as e:
-                print("Error during authentication:", e)
-                raise e
-        
-        with open(SAVED_TOKEN_PATH, "w") as token:
-            token.write(creds.to_json())
-    
-    service = build("drive", "v3", credentials= creds )
+    service = build("drive", "v3", credentials= creds)
     print("Google Drive authentication successful.")
     return service
