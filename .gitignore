@@ -8,5 +8,7 @@ __pycache__/
 .DS_Store
 credentials.json
 token.json
+bot-service-account-encoded.json
+bot-service-account-plain.json
 config
 \temp_downloads
