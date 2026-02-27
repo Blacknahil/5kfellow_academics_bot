@@ -5,7 +5,6 @@ from constants import (
     YEARS,
     SEMESTERS,
     MATERIAL_TYPES,
-    SUBJECTS
 )
 from utils import make_keyboard, get_files
 
@@ -41,7 +40,6 @@ async def handle_department_step(update, context, state, text):
 async def handle_year_step(update, context, state, text):
     
     # RENDER MODE (Back navigation)
-    print("handle year step", text)
     if text == "back":
         await update.message.reply_text(
             "Select your year:",
