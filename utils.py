@@ -21,26 +21,20 @@ def get_files(
     material_type: str,
     config_map) -> dict[str,DriveFile]:
     
-    normalized_department = department.lower().replace(" ", "_").strip()
-    normalized_year = year.lower().replace(" ", "_").strip()
-    normalized_semester = semester.lower().replace(" ", "_").strip()
-    normalized_stream = stream.lower().replace(" ", "_").strip() if stream else None
-    normalized_subject = subject.lower().replace(" ", "_").strip()
-    normalized_material_type = material_type.lower().replace(" ", "_").strip()
     
-    print("fetching file for: department=", normalized_department,
-          " year=", normalized_year,
-          " semester=", normalized_semester,
-          " stream=", normalized_stream,
-          " subject=", normalized_subject,
-          " material_type=", normalized_material_type)
+    print("fetching file for: department=", department,
+          " year=", year,
+          " semester=", semester,
+          " stream=", stream,
+          " subject=", subject,
+          " material_type=", material_type)
     
-    node = config_map[normalized_department][normalized_year][normalized_semester]
+    node = config_map[department][year][semester]
 
-    if normalized_stream:
-        node = node[normalized_stream]
+    if stream:
+        node = node[stream]
 
-    node = node[normalized_subject][normalized_material_type]
+    node = node[subject][material_type]
     files = {}
     for key, value in node.items():
         files[key]= (DriveFile(name=key, drive_id=value))
