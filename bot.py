@@ -1,4 +1,5 @@
 import os
+import time
 from dotenv import load_dotenv
 from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import (
@@ -164,6 +165,7 @@ if __name__ == "__main__":
     path = Path(DRIVE_CONFIG_PATH)
     not_exists_or_empty = not path.exists() or path.stat().st_size == 0
     
+    config_load_started_at = time.perf_counter()
     if READ_DRIVE_STATUS:
         print("📂 Drive reading is ENABLED.")
         generate_drive_config(
@@ -181,5 +183,12 @@ if __name__ == "__main__":
     else:
         print("📂 Drive reading is DISABLED.")
         print("Using existing drive config file.")
+        
+    config_load_elapsed_seconds = time.perf_counter() - config_load_started_at
+    print(
+        "Config map loaded in "
+        f"{config_load_elapsed_seconds:.2f}s "
+        f"({config_load_elapsed_seconds / 60:.2f} min)."
+    )
         
     main()
