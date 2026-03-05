@@ -13,7 +13,7 @@ async def handle_start_step(update, context, state, text):
     state["step"] = "DEPARTMENT"
     await update.message.reply_text(
         "Choose your department:",
-        reply_markup=make_keyboard(DEPARTMENTS)
+        reply_markup=make_keyboard(DEPARTMENTS.keys())
     )
 
 async def handle_department_step(update, context, state, text):
@@ -21,19 +21,19 @@ async def handle_department_step(update, context, state, text):
     if text == "back":
         await update.message.reply_text(
             "Choose your department:",
-            reply_markup=make_keyboard(DEPARTMENTS)
+            reply_markup=make_keyboard(DEPARTMENTS.keys())
         )
         return
     # INPUT MODE (Moving forward)
     if text not in DEPARTMENTS:
         return
 
-    state["department"] = text
+    state["department"] = DEPARTMENTS[text]
     state["step"] = "YEAR"
 
     await update.message.reply_text(
         "Select your year:",
-        reply_markup=make_keyboard(YEARS)
+        reply_markup=make_keyboard(YEARS.keys())
     )
 
 
@@ -43,7 +43,7 @@ async def handle_year_step(update, context, state, text):
     if text == "back":
         await update.message.reply_text(
             "Select your year:",
-            reply_markup=make_keyboard(YEARS)
+            reply_markup=make_keyboard(YEARS.keys())
         )
         return
     
@@ -51,12 +51,12 @@ async def handle_year_step(update, context, state, text):
     if text not in YEARS:
         return
 
-    state["year"] = text
+    state["year"] = YEARS[text]
     state["step"] = "SEMESTER"
 
     await update.message.reply_text(
         "Select semester:",
-        reply_markup=make_keyboard(SEMESTERS)
+        reply_markup=make_keyboard(SEMESTERS.keys())
     )
 
 async def handle_semester_step(update, context, state, text):
@@ -64,59 +64,61 @@ async def handle_semester_step(update, context, state, text):
     if text == "back":
         await update.message.reply_text(
             "Select semester:",
-            reply_markup=make_keyboard(SEMESTERS)
+            reply_markup=make_keyboard(SEMESTERS.keys())
         )
         return
     
     # INPUT MODE (Moving forward)
     if text not in SEMESTERS:
         return
-    state["semester"] = text
+    state["semester"] = SEMESTERS[text]
 
     # Stream conditions
-    if state["department"] == "Software" and state["year"] in ["Fourth Year", "Fifth Year"]:
+    if state["department"] == "software" and state["year"] in ["fourth_year", "fifth_year"]:
         state["step"] = "STREAM"
         await update.message.reply_text(
             "Select your stream:",
-            reply_markup=make_keyboard(SOFTWARE_STREAMS)
+            reply_markup=make_keyboard(SOFTWARE_STREAMS.keys())
         )
         return
 
     if (
-        state["department"] == "Electrical"
+        state["department"] == "electrical"
         and (
-            state["year"] == "Fifth Year"
-            or (state["year"] == "Fourth Year" and text == "Second Semester")
+            state["year"] == "fifth_year"
+            or (state["year"] == "fourth_year" and SEMESTERS.get(text) == "second_semester")
         )
     ):
+        print("setting Electrical stream")
         state["step"] = "STREAM"
         await update.message.reply_text(
             "Select your stream:",
-            reply_markup=make_keyboard(ELECTRICAL_STREAMS)
+            reply_markup=make_keyboard(ELECTRICAL_STREAMS.keys())
         )
         return
 
     # No stream → subject
+    print(state["department"], "electrical, ", state["year"], "= fourth_year, fifth_year ", text, "= second_semester")
     await enter_subject_step(update, context, state)
 
 async def handle_stream_step(update, context, state, text):
     
     # RENDER MODE (Back navigation)
     if text == "back":
-        streams = SOFTWARE_STREAMS if state["department"] == "Software" else ELECTRICAL_STREAMS
+        streams = SOFTWARE_STREAMS if state["department"] == "software" else ELECTRICAL_STREAMS
         await update.message.reply_text(
             "Select your stream:",
-            reply_markup=make_keyboard(streams)
+            reply_markup=make_keyboard(streams.keys())
         )
         return
     
     # INPUT MODE (Moving forward)
-    streams = SOFTWARE_STREAMS if state["department"] == "Software" else ELECTRICAL_STREAMS
+    streams = SOFTWARE_STREAMS if state["department"] == "software" else ELECTRICAL_STREAMS
 
     if text not in streams:
         return
 
-    state["stream"] = text
+    state["stream"] = streams[text]
     await enter_subject_step(update, context,state)
 
 
@@ -127,10 +129,10 @@ async def enter_subject_step(update, context, state):
     
     config_map = context.bot_data["config_map"]
     try:
-        department = state["department"].lower().replace(" ", "_") if state["department"] else ""
-        year = state["year"].lower().replace(" ", "_") if state["year"] else ""
-        stream = state.get("stream", "").lower().replace(" ", "_") if state.get("stream") else ""
-        semester = state["semester"].lower().replace(" ", "_") if state["semester"] else ""
+        department = state["department"] if state["department"] else ""
+        year = state["year"] if state["year"] else ""
+        stream = state.get("stream", "") if state.get("stream") else ""
+        semester = state["semester"] if state["semester"] else ""
         
         print("querying subjects for:", department, year, semester, stream)
         node = (
@@ -154,7 +156,7 @@ async def enter_subject_step(update, context, state):
     state["subjects"] = subjects
     
     await update.message.reply_text(
-        "Select your Course:",
+        "Select your course:",
         reply_markup=make_keyboard(subjects)
     )
 
@@ -163,7 +165,7 @@ async def handle_subject_step(update, context, state, text):
     if text == "back":
         subjects = state["subjects"]
         await update.message.reply_text(
-            "Please choose your Course:",
+            "Select your course:",
             reply_markup = make_keyboard(subjects)
         )
         return 
@@ -172,7 +174,7 @@ async def handle_subject_step(update, context, state, text):
     
     if text is None:
         await update.message.reply_text(
-            "Select your Course:",
+            "Select your course:",
             reply_markup=make_keyboard(subjects)
         )
         return
@@ -187,7 +189,7 @@ async def handle_subject_step(update, context, state, text):
 
     await update.message.reply_text(
         "Choose material type:",
-        reply_markup=make_keyboard(MATERIAL_TYPES)
+        reply_markup=make_keyboard(MATERIAL_TYPES.keys())
     )
 
 async def handle_material_step(update, context, state, text):
@@ -195,13 +197,13 @@ async def handle_material_step(update, context, state, text):
     if text == "back":
         await update.message.reply_text(
             "Choose material type:",
-            reply_markup=make_keyboard(MATERIAL_TYPES)
+            reply_markup=make_keyboard(MATERIAL_TYPES.keys())
     )
         return
     
     if text not in MATERIAL_TYPES:
         await update.message.reply_text(
-            "Please choose a valid Material type:"
+            "Please choose a valid material type:"
         )
         return
 
@@ -215,28 +217,28 @@ async def handle_material_step(update, context, state, text):
             state["semester"],
             state.get("stream"),
             state["subject"],
-            text,
+            MATERIAL_TYPES[text],
             config_map
         )
     except KeyError:
-        await update.message.reply_text("No files found.")
+        await update.message.reply_text(f"No {text} found.")
         return
 
-    state["step"] = "FILE_SELECTION"
-    state["material_type"] = text
-    state["files"] = files
-
-    msg = ""
     file_names = []
 
     if len(files) == 0:
         msg = f"No {text} found"
-        
-    else:
-        msg = f"📁 Available {text}:"
-        for fname in files:
-            print("file found: ", fname)
-            file_names.append(fname)
+        await update.message.reply_text(msg)
+        return 
+    
+    state["step"] = "FILE_SELECTION"
+    state["material_type"] = MATERIAL_TYPES[text]
+    state["files"] = files
+    
+    msg = f"📁 Available {text}:"
+    for fname in files:
+        print(f"{text} found: ", fname)
+        file_names.append(fname)
     # await update.message.reply_text()
     await update.message.reply_text(
         msg,

@@ -1,5 +1,11 @@
 from .drive_reader import list_children, is_folder, get_file_url
 
+
+def _normalize_item_name(name, folder):
+    """Trim all names; additionally lowercase folder names for stable navigation keys."""
+    cleaned_name = str(name).strip()
+    return cleaned_name.lower() if folder else cleaned_name
+
 def build_tree(drive_service, root_folder_id):
     '''
     Recursively builds a nested dictionary structure that mirrors the Google Drive folder hierarchy.
@@ -13,9 +19,10 @@ def build_tree(drive_service, root_folder_id):
         node = {}
         for item in children:
             item_id = item['id']
-            item_name = item['name']
+            folder = is_folder(item)
+            item_name = _normalize_item_name(item.get('name', ''), folder)
             print(f"Processing item: {item_name} (ID: {item_id})")
-            if is_folder(item):
+            if folder:
                 node[item_name] = walk(item_id)
             else:
                 node[item_name] = item_id
