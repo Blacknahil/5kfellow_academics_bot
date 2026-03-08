@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 import json
 from telegram import ReplyKeyboardMarkup
-from constants import DEPARTMENTS
 
 @dataclass
 class FileSent:
