@@ -20,8 +20,9 @@ class TelegramCache:
         return self.client.get(self._key(drive_id))
     
     def set(self, drive_id:str, telegram_file_id:str):
-         """Store a mapping drive_id → telegram file_id."""
-         self.client.set(self._key(drive_id), telegram_file_id)
+        """Store a mapping drive_id → telegram file_id."""
+        self.client.set(self._key(drive_id), telegram_file_id)
+        
     def is_cached(self, drive_id:str) -> bool:
         """
         Check if drive_id already exists in cache.

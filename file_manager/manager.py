@@ -7,7 +7,7 @@ from telegram import InputFile
 class FileManager:
     def __init__(self, bot, drive_service):
         '''
-            Initializes the FileManager with a Telegram bot, Google Drive service, and cache path.
+            Initializes the FileManager with a Telegram bot, Google Drive service, and a Redis-backed cache.
         '''
         self.bot = bot
         self.cache = TelegramCache()
