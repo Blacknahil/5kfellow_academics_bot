@@ -46,7 +46,11 @@ async def enter_book_club_step(update, context, state):
     files = extract_book_club_files(config_map)
 
     if not files:
-        await update.message.reply_text("No books found.")
+        state["step"] = "DEPARTMENT"
+        await update.message.reply_text(
+            "No books found. Please choose a different department:",
+            reply_markup=make_keyboard(DEPARTMENTS.keys())
+        )
         return
 
     state["step"] = "FILE_SELECTION"
