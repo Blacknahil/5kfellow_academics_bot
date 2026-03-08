@@ -21,6 +21,7 @@ pyasn1_modules==0.4.2
 pyparsing==3.3.1
 python-dotenv==1.2.1
 python-telegram-bot==20.7
+redis==7.3.0
 requests==2.32.5
 requests-oauthlib==2.0.0
 rsa==4.9.1

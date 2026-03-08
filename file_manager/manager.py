@@ -4,14 +4,13 @@ import os
 from utils import FileSent
 from telegram import InputFile
 
-TELEGRAM_CACHE_PATH = "config/telegram_cache.json"
 class FileManager:
     def __init__(self, bot, drive_service):
         '''
-            Initializes the FileManager with a Telegram bot, Google Drive service, and cache path.
+            Initializes the FileManager with a Telegram bot, Google Drive service, and a Redis-backed cache.
         '''
         self.bot = bot
-        self.cache = TelegramCache(TELEGRAM_CACHE_PATH)
+        self.cache = TelegramCache()
         self.drive = drive_service
          
     async def get_file(self, chat_id, drive_id:str):
@@ -21,7 +20,7 @@ class FileManager:
                 chat_id = chat_id,
                 document = cached_id
             )
-            return FileSent(telegram_file_id= cached_id, status = True)
+            return FileSent(telegram_file_id=cached_id, status = True)
         try:
             
             #  download from drive 
