@@ -16,6 +16,7 @@ from pathlib import Path
 from utils import get_files,load_config_map
 from handler import handle_start_step, handle_department_step, handle_year_step, handle_semester_step, handle_stream_step, handle_subject_step, handle_material_step, handle_file_selection_step
 from telegram.request import HTTPXRequest
+from constants import BOOK_CLUB_DEPARTMENT_KEY, DEPARTMENTS
 
 
 load_dotenv()
@@ -57,7 +58,7 @@ BACK_TRANSITIONS = {
     "STREAM": "SEMESTER",
     "SUBJECT": lambda s: "STREAM" if s["stream"] else "SEMESTER",
     "MATERIAL": "SUBJECT",
-    "FILE_SELECTION": "MATERIAL",
+    "FILE_SELECTION": lambda s: "DEPARTMENT" if s["department"] == DEPARTMENTS[BOOK_CLUB_DEPARTMENT_KEY] else "MATERIAL",
 }
 
 STATE_CLEANUP = {
