@@ -57,7 +57,7 @@ BACK_TRANSITIONS = {
     "STREAM": "SEMESTER",
     "SUBJECT": lambda s: "STREAM" if s["stream"] else "SEMESTER",
     "MATERIAL": "SUBJECT",
-    "FILE_SELECTION": "MATERIAL",
+    "FILE_SELECTION": lambda s: "DEPARTMENT" if s["department"] == "book_club" else "MATERIAL",
 }
 
 STATE_CLEANUP = {

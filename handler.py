@@ -6,7 +6,7 @@ from constants import (
     SEMESTERS,
     MATERIAL_TYPES,
 )
-from utils import make_keyboard, get_files
+from utils import make_keyboard, get_files, extract_book_club_files
 
 
 async def handle_start_step(update, context, state, text):
@@ -29,11 +29,33 @@ async def handle_department_step(update, context, state, text):
         return
 
     state["department"] = DEPARTMENTS[text]
+
+    if state["department"] == "book_club":
+        await enter_book_club_step(update, context, state)
+        return
+
     state["step"] = "YEAR"
 
     await update.message.reply_text(
         "Select your year:",
         reply_markup=make_keyboard(YEARS.keys())
+    )
+
+async def enter_book_club_step(update, context, state):
+    config_map = context.bot_data["config_map"]
+    files = extract_book_club_files(config_map)
+
+    if not files:
+        await update.message.reply_text("No books found.")
+        return
+
+    state["step"] = "FILE_SELECTION"
+    state["material_type"] = "books"
+    state["files"] = files
+
+    await update.message.reply_text(
+        "Book Club Recommendations:",
+        reply_markup=make_keyboard(files.keys(), back=True)
     )
 
 

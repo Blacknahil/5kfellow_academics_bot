@@ -10,6 +10,7 @@ DEPARTMENTS = {
     "Civil": "civil",
     "Chemical": "chemical",
     "Biomedical": "biomedical",
+    "Book Club": "book_club",
 }
 
 # ---------------- STREAMS ---------------- #
