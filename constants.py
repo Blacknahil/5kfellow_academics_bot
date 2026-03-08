@@ -13,8 +13,6 @@ DEPARTMENTS = {
     "Book Club": "book_club",
 }
 
-BOOK_CLUB_DEPARTMENT_KEY    = "Book Club"
-
 # ---------------- STREAMS ---------------- #
 
 SOFTWARE_STREAMS = {

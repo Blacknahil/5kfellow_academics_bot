@@ -5,7 +5,6 @@ from constants import (
     YEARS,
     SEMESTERS,
     MATERIAL_TYPES,
-    BOOK_CLUB_DEPARTMENT_KEY,
 )
 from utils import make_keyboard, get_files, extract_book_club_files
 
@@ -31,7 +30,7 @@ async def handle_department_step(update, context, state, text):
 
     state["department"] = DEPARTMENTS[text]
 
-    if state["department"] == DEPARTMENTS[BOOK_CLUB_DEPARTMENT_KEY]:
+    if state["department"] == "book_club":
         await enter_book_club_step(update, context, state)
         return
 

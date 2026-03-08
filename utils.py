@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import json
 from telegram import ReplyKeyboardMarkup
-from constants import BOOK_CLUB_DEPARTMENT_KEY,DEPARTMENTS
+from constants import DEPARTMENTS
 
 @dataclass
 class FileSent:
@@ -72,7 +72,7 @@ def make_keyboard(options, cols=2, back=True):
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
 def extract_book_club_files(config_map) -> dict[str, DriveFile]:
-    node = config_map.get(DEPARTMENTS[BOOK_CLUB_DEPARTMENT_KEY], {})
+    node = config_map.get("book_club", {})
     if not isinstance(node, dict) or not node:
         return {}
 
