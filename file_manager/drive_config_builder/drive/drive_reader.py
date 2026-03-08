@@ -52,16 +52,20 @@ def is_folder(item):
     '''
     return item.get("mimeType") == "application/vnd.google-apps.folder"
 
-def _download_file_sync(service, file_id, destination_path = "temp_downloads"):
+def _download_file_sync(service, file_id, destination_path=None):
     '''
-    Downloads a file from Google Drive to a local destination.An actual blocking download logic.
+    Downloads a file from Google Drive to a local destination. An actual blocking download logic.
     
     :param service: Authenticated Drive service object
     :param file_id: ID of the file to download
     :param destination_path: Local path to save the downloaded file
     '''
-    
-    # try:
+    if destination_path is None:
+        try:
+            from constants import TEMP_DOWNLOADS_DIR
+            destination_path = str(TEMP_DOWNLOADS_DIR)
+        except ImportError:
+            destination_path = "temp_downloads"
     os.makedirs(destination_path, exist_ok = True)
     
     # get file metadata 
@@ -83,7 +87,7 @@ def _download_file_sync(service, file_id, destination_path = "temp_downloads"):
     #     return None
         
 
-async def download_file(service, file_id, destination_path = "temp_downloads"):
+async def download_file(service, file_id, destination_path=None):
     '''
     Async wrapper so downloads don't block the event loop.
     '''

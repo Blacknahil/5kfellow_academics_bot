@@ -4,13 +4,15 @@ import logging
 from pathlib import Path
 
 
-def repo_root() -> Path:
-    # cron/cleanup_temp.py -> parents[1] == repo root
-    return Path(__file__).resolve().parents[1]
-
-
 def default_target() -> Path:
-    return repo_root() / "temp_downloads"
+    # Import lazily to avoid adding a hard dependency at module load time,
+    # but the canonical path is always the one defined in constants.
+    try:
+        from constants import TEMP_DOWNLOADS_DIR
+        return TEMP_DOWNLOADS_DIR
+    except ImportError:
+        # Fallback when the module is run from the repo root directly.
+        return Path(__file__).resolve().parents[1] / "temp_downloads"
 
 
 def purge_all(target: Path, dry_run: bool = False) -> int:

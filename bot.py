@@ -156,10 +156,11 @@ def main():
     # This avoids the optional `JobQueue` dependency and works with the
     # existing synchronous startup flow.
     try:
-        from cron.cleanup_temp import purge_all, default_target
+        from cron.cleanup_temp import purge_all
+        from constants import TEMP_DOWNLOADS_DIR
 
         def _purge_loop(interval_seconds: int = 60):
-            target = default_target()
+            target = TEMP_DOWNLOADS_DIR
             while True:
                 try:
                     purge_all(target, dry_run=False)
