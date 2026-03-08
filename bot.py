@@ -1,6 +1,5 @@
 import os
 import time
-import threading
 from dotenv import load_dotenv
 from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import (
@@ -152,28 +151,6 @@ def main():
     app.bot_data["file_manager"] = file_manager
     app.bot_data["config_map"] = config_map
     
-    # Start a daemon thread that purges temp_downloads every 24 hours.
-    # This avoids the optional `JobQueue` dependency and works with the
-    # existing synchronous startup flow.
-    try:
-        from cron.cleanup_temp import purge_all, default_target
-
-        def _purge_loop(interval_seconds: int = 60):
-            target = default_target()
-            while True:
-                try:
-                    purge_all(target, dry_run=False)
-                except Exception as e:
-                    print(f"Periodic purge failed: {e}")
-                time.sleep(interval_seconds)
-
-        # run every 24 hours (86400s)
-        t = threading.Thread(target=_purge_loop, args=(86400,), daemon=True)
-        t.start()
-    except Exception as e:
-        print(f"Failed to start purge thread: {e}")
-    
-
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
