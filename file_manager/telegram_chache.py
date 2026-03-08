@@ -1,6 +1,7 @@
 import os
 import redis
 import ssl
+from urllib.parse import urlparse
 class TelegramCache:
     def __init__(self):
         redis_url = os.getenv("REDIS_URL")
@@ -8,7 +9,8 @@ class TelegramCache:
             raise RuntimeError("REDIS_URL environment variable is not set.")
         
         # Detect TLS from URL scheme
-        if redis_url.startswith("rediss://"):
+        scheme = urlparse(redis_url).scheme
+        if scheme == "rediss":
             # decode_responses=True returns strings instead of bytes
             self.client = redis.from_url(redis_url, 
                                         decode_responses=True,
