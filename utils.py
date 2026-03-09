@@ -38,16 +38,7 @@ def get_files(
     files = {}
     for key, value in node.items():
         files[key]= (DriveFile(name=key, drive_id=value))
-    return files
-
-
-def load_config_map(config_path:str = "config/drive_config.json"):
-    with open(config_path, "r") as f:
-        config_map = json.load(f)
-        return config_map
-    return {}
-
-    
+    return files   
     
     
     

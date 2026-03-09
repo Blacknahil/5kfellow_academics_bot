@@ -9,11 +9,7 @@ from telegram.ext import (
     ContextTypes,
     filters
 )
-from file_manager import generate_drive_config
-from file_manager import get_authenticated_drive_service
-from file_manager import FileManager
-from pathlib import Path
-from utils import get_files,load_config_map
+from file_manager import load_config, FileManager, get_authenticated_drive_service
 from handler import handle_start_step, handle_department_step, handle_year_step, handle_semester_step, handle_stream_step, handle_subject_step, handle_material_step, handle_file_selection_step
 from telegram.request import HTTPXRequest
 
@@ -141,13 +137,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ---------------- MAIN ---------------- #
 
-def main():
+def main(config_map: dict):
     app = ApplicationBuilder().token(TOKEN).request(request).build()
     
     # google drive service authentication 
     drive_service = get_authenticated_drive_service()
     file_manager = FileManager(app.bot, drive_service)
-    config_map = load_config_map(DRIVE_CONFIG_PATH)
+
     app.bot_data["file_manager"] = file_manager
     app.bot_data["config_map"] = config_map
     
@@ -162,28 +158,15 @@ def main():
 if __name__ == "__main__":
     # check if the drive config file exists and it aint empty 
     root_folder_id = os.getenv("GOOGLE_DRIVE_ROOT_FOLDER_ID")
-    path = Path(DRIVE_CONFIG_PATH)
-    not_exists_or_empty = not path.exists() or path.stat().st_size == 0
+    if root_folder_id is None:
+        raise RuntimeError("GOOGLE_DRIVE_ROOT_FOLDER_ID environment variable is not set.")
     
     config_load_started_at = time.perf_counter()
-    if READ_DRIVE_STATUS:
-        print("📂 Drive reading is ENABLED.")
-        generate_drive_config(
-            root_folder_id=root_folder_id,
-            output_path=DRIVE_CONFIG_PATH
-            )
-        
-    elif not READ_DRIVE_STATUS and not_exists_or_empty:
-        print("⚠️ Drive reading is DISABLED but the drive config file does not exist or is empty.")
-        print("Generating drive config file now...")
-        generate_drive_config(
-            root_folder_id=root_folder_id,
-            output_path=DRIVE_CONFIG_PATH
-            )
-    else:
-        print("📂 Drive reading is DISABLED.")
-        print("Using existing drive config file.")
-        
+    config_map = load_config(
+        READ_DRIVE_STATUS,
+        root_folder_id,
+        DRIVE_CONFIG_PATH
+    )
     config_load_elapsed_seconds = time.perf_counter() - config_load_started_at
     print(
         "Config map loaded in "
@@ -191,4 +174,4 @@ if __name__ == "__main__":
         f"({config_load_elapsed_seconds / 60:.2f} min)."
     )
         
-    main()
+    main(config_map)
