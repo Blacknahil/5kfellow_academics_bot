@@ -16,6 +16,8 @@ idna==3.11
 oauthlib==3.3.1
 proto-plus==1.27.0
 protobuf==6.33.2
+psycopg==3.3.3
+psycopg-binary==3.3.3
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
 pyparsing==3.3.1
