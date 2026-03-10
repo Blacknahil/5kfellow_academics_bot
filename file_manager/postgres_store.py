@@ -1,18 +1,14 @@
 
 import json
 import os
-from dotenv import load_dotenv
 import psycopg
-
-
-load_dotenv()  
-DATABASE_URL = os.getenv("DATABASE_URL")
 
 def _get_connection():
     """Establish a connection to the PostgreSQL database."""
-    if DATABASE_URL is None:
+    database_url = os.getenv("DATABASE_URL")
+    if database_url is None:
         raise RuntimeError("DATABASE_URL environment variable is not set.")
-    return psycopg.connect(DATABASE_URL)
+    return psycopg.connect(database_url)
 
 def ensure_table():
     """Create the drive_config table if it doesn't exist."""
@@ -33,7 +29,7 @@ def load_db_config():
             cur.execute("""
                         SELECT config_json 
                         FROM drive_config
-                        ORDER BY created_at DESC
+                        ORDER BY created_at DESC, id DESC
                         LIMIT 1;
                         """)
             row = cur.fetchone()

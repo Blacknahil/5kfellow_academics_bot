@@ -1,6 +1,5 @@
 from .auth.auth_manager import get_authenticated_drive_service
 from .drive.walker import build_tree
-import os
 
 def generate_drive_config(root_folder_id, output_path="output/drive_config.json"):
     '''
