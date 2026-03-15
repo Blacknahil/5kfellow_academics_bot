@@ -1,7 +1,8 @@
 from dataclasses import dataclass
-import json
+import hashlib
 from telegram import ReplyKeyboardMarkup
 
+MAX_FILE_NAME_LENGTH = 120
 @dataclass
 class FileSent:
     telegram_file_id : str
@@ -36,8 +37,13 @@ def get_files(
 
     node = node[subject][material_type]
     files = {}
-    for key, value in node.items():
-        files[key]= (DriveFile(name=key, drive_id=value))
+    for name, drive_id in node.items():
+        if len(name) > MAX_FILE_NAME_LENGTH:
+            file_id = make_file_hash(name)
+            files[file_id] = DriveFile(name=name, drive_id=drive_id)
+        else:
+            files[name] = DriveFile(name=name, drive_id=drive_id)
+            
     return files   
     
     
@@ -70,6 +76,13 @@ def extract_book_club_files(config_map) -> dict[str, DriveFile]:
     for name, drive_id in node.items():
         if not isinstance(name, str) or not isinstance(drive_id, str):
             continue
-        files[name] = DriveFile(name=name, drive_id=drive_id)
+        if len(name) > MAX_FILE_NAME_LENGTH:
+            file_id = make_file_hash(name)
+            files[file_id] = DriveFile(name=name, drive_id=drive_id)
+        else:
+            files[name] = DriveFile(name=name, drive_id=drive_id)
 
     return files
+
+def make_file_hash(name:str, length:int = 8) -> str:
+    return hashlib.sha1(name.encode()).hexdigest()[:length]
