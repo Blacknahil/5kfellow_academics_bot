@@ -21,6 +21,8 @@ class FileManager:
                 document = cached_id
             )
             return FileSent(telegram_file_id=cached_id, status = True)
+        
+        telegram_id = None
         try:
             
             #  download from drive 

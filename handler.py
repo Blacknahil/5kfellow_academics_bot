@@ -8,6 +8,7 @@ from constants import (
 )
 from utils import make_keyboard, get_files, extract_book_club_files
 
+MAX_FILE_NAME_LENGTH = 120
 
 async def handle_start_step(update, context, state, text):
     state["step"] = "DEPARTMENT"
@@ -52,10 +53,18 @@ async def enter_book_club_step(update, context, state):
     state["step"] = "FILE_SELECTION"
     state["material_type"] = "books"
     state["files"] = files
-
+    
+    book_names = []
+    for file_id, file_obj in files.items():
+        if len(file_obj.name) > MAX_FILE_NAME_LENGTH:
+            label = f"{file_obj.name[:MAX_FILE_NAME_LENGTH]} || {file_id}"
+        else:
+            label = f"{file_obj.name}"
+        book_names.append(label)
+        
     await update.message.reply_text(
         "Book Club Recommendations:",
-        reply_markup=make_keyboard(files.keys(), back=True)
+        reply_markup=make_keyboard(book_names, back=True)
     )
 
 
@@ -246,8 +255,6 @@ async def handle_material_step(update, context, state, text):
         await update.message.reply_text(f"No {text} found.")
         return
 
-    file_names = []
-
     if len(files) == 0:
         msg = f"No {text} found"
         await update.message.reply_text(msg)
@@ -257,11 +264,15 @@ async def handle_material_step(update, context, state, text):
     state["material_type"] = MATERIAL_TYPES[text]
     state["files"] = files
     
+    file_names = []
     msg = f"📁 Available {text}:"
-    for fname in files:
-        print(f"{text} found: ", fname)
-        file_names.append(fname)
-    # await update.message.reply_text()
+    for file_id, file_obj in files.items():
+        if len(file_obj.name) > MAX_FILE_NAME_LENGTH:
+            label = f"{file_obj.name[:MAX_FILE_NAME_LENGTH]} || {file_id}"
+        else:
+            label = f"{file_obj.name}"
+        file_names.append(label)
+
     await update.message.reply_text(
         msg,
         reply_markup=make_keyboard(file_names,back=True)
@@ -269,11 +280,17 @@ async def handle_material_step(update, context, state, text):
 
 async def handle_file_selection_step(update, context, state, text):
     files = state["files"]
-    if not text or text not in files:
-        await update.message.reply_text("Please use a correct file name")
+    if not text:
+        await update.message.reply_text("Please select a correct file from the options")
         return
-
-    drive_id = files[text].drive_id
+    if "||" in text:
+        key = text.split("||")[-1].strip()
+    else:
+        key = text
+    if key not in files:
+        await update.message.reply_text("Please select a correct file from the options")
+        return
+    drive_id = files[key].drive_id
     file_manager = context.bot_data["file_manager"]
 
     await update.message.reply_text("📥 Fetching file...")
