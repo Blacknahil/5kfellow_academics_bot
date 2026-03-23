@@ -9,9 +9,12 @@ from telegram.ext import (
     ContextTypes,
     filters
 )
-from file_manager import load_config, FileManager, get_authenticated_drive_service
-from handler import handle_start_step, handle_department_step, handle_year_step, handle_semester_step, handle_stream_step, handle_subject_step, handle_material_step, handle_file_selection_step
 from telegram.request import HTTPXRequest
+from file_manager import load_config, FileManager, get_authenticated_drive_service
+from handler import handle_start_step, handle_department_step, handle_year_step, handle_semester_step
+from handler import handle_stream_step, handle_subject_step, handle_material_step, handle_file_selection_step, stats_command
+from analytics.tracker import track_request, track_user
+from analytics.init_tables import ensure_analytics_tables
 
 
 load_dotenv()
@@ -114,20 +117,22 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     state = user_state[chat_id]
     step = state["step"]
-
+    
+    user_id = update.effective_user.id
+    try:
+        await track_user(user_id)
+        await track_request()
+    except Exception as e:
+        print("Error tracking analytics: ", e)
+    
     if text == "⬅️ Back": 
         # Handle back action
-        print(f"Current step before back: {state['step']}")
         handle_back(state)
-        print(f"New step after back: {state['step']}")
         new_step = state["step"]
         handler = STEP_HANDLERS.get(new_step)
-        print(f"Handler for new step: {handler}")
 
         if handler:
             await handler(update, context, state, "back")
-            print("state: ", state)
-            print("Back action handled")
         return
 
     handler = STEP_HANDLERS.get(step)
@@ -149,7 +154,9 @@ def main(config_map: dict):
     
 
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("stats", stats_command))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    
 
     print("🤖 Bot is running...")
     app.run_polling()
@@ -173,5 +180,10 @@ if __name__ == "__main__":
         f"{config_load_elapsed_seconds:.2f}s "
         f"({config_load_elapsed_seconds / 60:.2f} min)."
     )
+    
+    try:
+        ensure_analytics_tables()
+    except Exception as e:
+        print("Error ensuring analytics tables: ", e)
         
     main(config_map)

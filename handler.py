@@ -1,3 +1,6 @@
+from telegram.ext import ContextTypes
+from telegram import Update
+
 from constants import (
     DEPARTMENTS,
     SOFTWARE_STREAMS,
@@ -6,7 +9,9 @@ from constants import (
     SEMESTERS,
     MATERIAL_TYPES,
 )
+
 from utils import make_keyboard, get_files, extract_book_club_files
+from analytics.tracker import track_download, track_failed, get_stats
 
 
 async def handle_start_step(update, context, state, text):
@@ -15,6 +20,27 @@ async def handle_start_step(update, context, state, text):
         "Choose your department:",
         reply_markup=make_keyboard(DEPARTMENTS.keys())
     )
+    
+async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        stats = await get_stats()
+    except Exception as e:
+        print("Error fetching stats: ", e)
+        await update.message.reply_text("Error fetching statistics.")
+        return
+
+    msg = (
+        "📊 Bot Statistics\n\n"
+        f"👤 Total Users: {stats['total_users']}\n"
+        f"🆕 Users Today: {stats['users_today']}\n"
+        f"📨 Requests Today: {stats['requests_today']}\n"
+        f"📦 Total Requests: {stats['total_requests']}\n"
+        f"📥 Downloads Today: {stats['downloads_today']}\n"
+        f"📚 Total Downloads: {stats['total_downloads']}\n"
+        f"❌ Failed Downloads Today: {stats['failed_today']}\n\n"
+        f"🏆 Most Active Department: {stats['top_department']}\n"
+    )
+    await update.message.reply_text(msg)
 
 async def handle_department_step(update, context, state, text):
     # RENDER MODE (Back navigation)
@@ -111,7 +137,6 @@ async def handle_semester_step(update, context, state, text):
             or (state["year"] == "fourth_year" and SEMESTERS.get(text) == "second_semester")
         )
     ):
-        print("setting Electrical stream")
         state["step"] = "STREAM"
         await update.message.reply_text(
             "Select your stream:",
@@ -120,7 +145,6 @@ async def handle_semester_step(update, context, state, text):
         return
 
     # No stream → subject
-    print(state["department"], "electrical, ", state["year"], "= fourth_year, fifth_year ", text, "= second_semester")
     await enter_subject_step(update, context, state)
 
 async def handle_stream_step(update, context, state, text):
@@ -156,7 +180,6 @@ async def enter_subject_step(update, context, state):
         stream = state.get("stream", "") if state.get("stream") else ""
         semester = state["semester"] if state["semester"] else ""
         
-        print("querying subjects for:", department, year, semester, stream)
         node = (
             config_map
             .get(department, {})
@@ -249,8 +272,7 @@ async def handle_material_step(update, context, state, text):
     file_names = []
 
     if len(files) == 0:
-        msg = f"No {text} found"
-        await update.message.reply_text(msg)
+        await update.message.reply_text(f"No {text} found.")
         return 
     
     state["step"] = "FILE_SELECTION"
@@ -259,7 +281,6 @@ async def handle_material_step(update, context, state, text):
     
     msg = f"📁 Available {text}:"
     for fname in files:
-        print(f"{text} found: ", fname)
         file_names.append(fname)
     # await update.message.reply_text()
     await update.message.reply_text(
@@ -280,7 +301,15 @@ async def handle_file_selection_step(update, context, state, text):
     chat_id = update.effective_chat.id
     file_sent = await file_manager.get_file(chat_id, drive_id)
     if file_sent.status:
-        print("File sent successfully.")
+        try:
+             await track_download(state["department"])
+        except Exception as e:
+            print("Error tracking download: ", e)
     else:
+        try:
+            await track_failed()
+        except Exception as e:
+            print("Error tracking failed download: ", e)
+            
         await update.message.reply_text("Failed to send file.")
     
