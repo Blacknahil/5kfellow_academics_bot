@@ -11,8 +11,7 @@ from constants import (
 )
 
 from utils import make_keyboard, get_files, extract_book_club_files
-from analytics.tracker import track_download,track_failed
-from analytics.tracker import get_stats
+from analytics.tracker import track_download, track_failed, get_stats
 
 
 async def handle_start_step(update, context, state, text):
@@ -23,7 +22,13 @@ async def handle_start_step(update, context, state, text):
     )
     
 async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    stats = await get_stats()
+    try:
+        stats = await get_stats()
+    except Exception as e:
+        print("Error fetching stats: ", e)
+        await update.message.reply_text("Error fetching statistics.")
+        return
+
     msg = (
         "📊 Bot Statistics\n\n"
         f"👤 Total Users: {stats['total_users']}\n"
@@ -296,8 +301,15 @@ async def handle_file_selection_step(update, context, state, text):
     chat_id = update.effective_chat.id
     file_sent = await file_manager.get_file(chat_id, drive_id)
     if file_sent.status:
-        await track_download(state["department"])
+        try:
+             await track_download(state["department"])
+        except Exception as e:
+            print("Error tracking download: ", e)
     else:
-        await track_failed()
+        try:
+            await track_failed()
+        except Exception as e:
+            print("Error tracking failed download: ", e)
+            
         await update.message.reply_text("Failed to send file.")
     

@@ -119,8 +119,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     step = state["step"]
     
     user_id = update.effective_user.id
-    await track_user(user_id)
-    await track_request()
+    try:
+        await track_user(user_id)
+        await track_request()
+    except Exception as e:
+        print("Error tracking analytics: ", e)
     
     if text == "⬅️ Back": 
         # Handle back action
