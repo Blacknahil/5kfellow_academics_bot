@@ -267,7 +267,7 @@ async def handle_material_step(update, context, state, text):
     file_names = []
 
     if len(files) == 0:
-        await update.message.reply_text(msg)
+        await update.message.reply_text(f"No {text} found.")
         return 
     
     state["step"] = "FILE_SELECTION"
