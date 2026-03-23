@@ -23,7 +23,7 @@ async def handle_start_step(update, context, state, text):
     )
     
 async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    stats = get_stats()
+    stats = await get_stats()
     msg = (
         "📊 Bot Statistics\n\n"
         f"👤 Total Users: {stats['total_users']}\n"
@@ -296,8 +296,8 @@ async def handle_file_selection_step(update, context, state, text):
     chat_id = update.effective_chat.id
     file_sent = await file_manager.get_file(chat_id, drive_id)
     if file_sent.status:
-        track_download(state["department"])
+        await track_download(state["department"])
     else:
-        track_failed()
+        await track_failed()
         await update.message.reply_text("Failed to send file.")
     

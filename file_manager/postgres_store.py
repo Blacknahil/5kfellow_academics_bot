@@ -10,6 +10,14 @@ def _get_connection():
         raise RuntimeError("DATABASE_URL environment variable is not set.")
     return psycopg.connect(database_url)
 
+
+async def _get_async_connection() -> psycopg.AsyncConnection:
+    """Establish an async connection to the PostgreSQL database."""
+    database_url = os.getenv("DATABASE_URL")
+    if database_url is None:
+        raise RuntimeError("DATABASE_URL environment variable is not set.")
+    return await psycopg.AsyncConnection.connect(database_url)
+
 def ensure_table():
     """Create the drive_config table if it doesn't exist."""
     with _get_connection() as conn:

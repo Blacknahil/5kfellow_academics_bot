@@ -119,8 +119,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     step = state["step"]
     
     user_id = update.effective_user.id
-    track_user(user_id)
-    track_request()
+    await track_user(user_id)
+    await track_request()
     
     if text == "⬅️ Back": 
         # Handle back action
